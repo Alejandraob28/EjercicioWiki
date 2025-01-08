@@ -1,0 +1,97 @@
+
+version: 2
+
+models:
+  - name: stg_catalog_categories
+    description: "Este modelo crea un hash para las categorías y las devuelve junto con un identificador único."
+    columns:
+      - name: SK_CATEGORY_PRODUCTS
+        description: "Identificador único para cada categoría, basado en un hash de la categoría."
+        tests:
+          - unique
+          - not_null
+      - name: CATEGORY
+        description: "Nombre de la categoría del producto."
+        tests:
+          - not_null
+
+  - name: stg_catalog_products
+    description: "Este modelo realiza varias transformaciones en los productos, incluyendo la corrección de precios, la creación de hashes de nombre de producto y categoría, y la corrección de la fecha de sincronización de Fivetran."
+    columns:
+      - name: _ROW
+        description: "Identificador único para cada fila generado mediante ROW_NUMBER."
+        tests:
+          - not_null
+      - name: FIVETRAN_SYNCED_CORRECTED
+        description: "Fecha de sincronización de Fivetran, convertida al formato DD-Mon-YYYY HH24:MI:SS."
+        tests:
+          - not_null
+      - name: PRICE_CORRECTED
+        description: "Precio del producto corregido con dos decimales."
+        tests:
+          - not_null
+      - name: HASH_CATEGORY
+        description: "Hash de la categoría del producto."
+        tests:
+          - not_null
+      - name: HASH_PRODUCTNAME
+        description: "Hash del nombre del producto."
+        tests:
+          - not_null
+      - name: supplier_id
+        description: "ID del proveedor."
+        tests:
+          - not_null
+
+  - name: stg_catalog_productName
+    description: "Este modelo crea un hash para los nombres de los productos y los devuelve junto con un identificador único."
+    columns:
+      - name: SK_PRODUCT_NAME
+        description: "Identificador único para cada nombre de producto, basado en un hash del nombre del producto."
+        tests:
+          - unique
+          - not_null
+      - name: PRODUCT_NAME
+        description: "Nombre del producto."
+        tests:
+          - not_null
+
+  - name: stg_catalog_suppliers
+    description: "Este modelo limpia y transforma los datos de proveedores, dividiendo el nombre de contacto, separando la dirección, normalizando los números de teléfono y validando los correos electrónicos."
+    columns:
+      - name: _ROW
+        description: "Identificador único para cada fila generado mediante ROW_NUMBER."
+        tests:
+          - not_null
+      - name: FIRST_NAME
+        description: "Nombre del contacto del proveedor."
+        tests:
+          - not_null
+      - name: LAST_NAME
+        description: "Apellido del contacto del proveedor."
+        tests:
+          - not_null
+      - name: STREET
+        description: "Calle del proveedor extraída de la dirección."
+        tests:
+          - not_null
+      - name: CITY
+        description: "Ciudad del proveedor extraída de la dirección."
+        tests:
+          - not_null
+      - name: STATE
+        description: "Estado del proveedor extraído de la dirección."
+        tests:
+          - not_null
+      - name: PHONE_NUMBER_NORM
+        description: "Número de teléfono del proveedor, normalizado a solo números."
+        tests:
+          - not_null
+      - name: EMAIL
+        description: "Correo electrónico del proveedor."
+        tests:
+          - not_null
+      - name: EMAIL_VALIDATION
+        description: "Indicador de validación del correo electrónico, que marca TRUE si el correo es válido (tiene un '@')."
+        tests:
+          - not_null
