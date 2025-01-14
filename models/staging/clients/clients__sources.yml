@@ -1,0 +1,114 @@
+version: 2
+
+sources:
+  - name: clients
+    schema: clients
+    database: alejandraoliver_dev_bronze_icarospath_db
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    freshness:
+      warn_after: { count: 1000, period: hour }
+      error_after: { count: 2000, period: hour }
+
+    tables:
+      - name: customers
+        description: "Información sobre los clientes."
+        loaded_at_field: _fivetran_synced
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - _row
+                - _fivetran_synced
+                - address
+                - last_name
+                - phone_number
+                - customer_id
+                - first_name
+                - email
+        columns:
+          - name: _row
+            description: "Identificador único de la fila en el sistema original."
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: "Fecha y hora en que la fila fue sincronizada desde Fivetran."
+            tests:
+              - not_null
+          - name: address
+            description: "Dirección física del cliente."
+            tests:
+              - not_null
+          - name: last_name
+            description: "Apellido del cliente."
+            tests:
+              - not_null
+          - name: phone_number
+            description: "Número de teléfono del cliente."
+            tests:
+              - not_null
+               - unique
+          - name: customer_id
+            description: "Identificador único del cliente."
+            tests:
+              - not_null
+              - unique
+          - name: first_name
+            description: "Primer nombre del cliente."
+            tests:
+              - not_null
+          - name: email
+            description: "Correo electrónico del cliente."
+            tests:
+              - not_null
+      - name: reviews
+        description: "Reseñas de productos realizadas por clientes."
+        loaded_at_field: _fivetran_synced
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - _row
+                - _fivetran_synced
+                - review_id
+                - review_date
+                - product_id
+                - rating
+                - review_text
+                - customer_id
+        columns:
+          - name: _row
+            description: "Identificador único de la fila en el sistema original."
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: "Fecha y hora en que la fila fue sincronizada desde Fivetran."
+            tests:
+              - not_null
+          - name: review_id
+            description: "Identificador único de la reseña."
+            tests:
+              - not_null
+              - unique
+          - name: review_date
+            description: "Fecha en que se realizó la reseña."
+            tests:
+              - not_null
+          - name: product_id
+            description: "Identificador único del producto asociado con la reseña."
+            tests:
+              - not_null
+          - name: rating
+            description: "Calificación otorgada al producto, generalmente en una escala de 1 a 5."
+            tests:
+              - not_null
+          - name: review_text
+            description: "Texto descriptivo de la reseña proporcionada por el cliente."
+            tests:
+              - not_null
+          - name: customer_id
+            description: "Identificador único del cliente que dejó la reseña."
+            tests:
+              - not_null

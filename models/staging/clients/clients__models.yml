@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: stg_clients_customers
+    description: "Información de los clientes."
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida de los datos."
+      - name: customer_id
+        data_type: number
+        description: "Identificador único del cliente."
+        tests:
+          - relationships:
+              to: ref('stg_clients_reviews','stg_sales_orders') 
+              field: customer_id
+      - name: first_name
+        data_type: varchar
+        description: "Primer nombre del cliente."
+      - name: last_name
+        data_type: varchar
+        description: "Apellido del cliente."
+      - name: street
+        data_type: varchar
+        description: "Dirección del cliente."
+      - name: city
+        data_type: varchar
+        description: "Ciudad del cliente."
+      - name: state
+        data_type: varchar
+        description: "Estado del cliente."
+      - name: phone_number_norm
+        data_type: varchar
+        description: "Número de teléfono normalizado del cliente."
+      - name: email
+        data_type: varchar
+        description: "Correo electrónico del cliente."
+        tests:
+          - duplicate_email
+      - name: email_validation
+        data_type: boolean
+        description: "Indicador de validación del correo electrónico del cliente."
+
+  - name: stg_clients_reviews
+    description: "Reseñas de productos realizadas por clientes."
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida de los datos."
+      - name: customer_id
+        data_type: number
+        description: "Identificador único del cliente que dejó la reseña."
+      - name: review_id
+        data_type: number
+        description: "Identificador único de la reseña."
+      - name: product_id
+        data_type: number
+        description: "Identificador del producto reseñado."
+      - name: review_date
+        data_type: date
+        description: "Fecha en que se realizó la reseña."
+      - name: corrected_rating
+        data_type: number
+        description: "Calificación corregida otorgada al producto por el cliente."
+      - name: clean_review_text
+        data_type: varchar
+        description: "Texto limpio de la reseña del cliente."

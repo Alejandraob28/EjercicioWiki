@@ -1,0 +1,203 @@
+version: 2
+
+sources:
+  - name: sales
+    schema: sales
+    database: alejandraoliver_dev_bronze_icarospath_db
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    freshness:
+      warn_after: { count: 1000, period: hour }
+      error_after: { count: 2000, period: hour }
+
+
+    tables:
+      - name: orders
+        description: "Información sobre los pedidos realizados."
+        loaded_at_field: _fivetran_synced
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - _row
+                - _fivetran_synced
+                - order_date
+                - total_price
+                - customer_id
+                - order_id
+        columns:
+          - name: _row
+            description: "Identificador único de la fila en el sistema original."
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: "Fecha y hora en que la fila fue sincronizada desde Fivetran."
+            tests:
+              - not_null
+          - name: order_date
+            description: "Fecha en la que se realizó el pedido."
+            tests:
+              - not_null
+          - name: total_price
+            description: "Precio total del pedido."
+            tests:
+              - not_null
+          - name: customer_id
+            description: "Identificador único del cliente que realizó el pedido."
+            tests:
+              - not_null
+          - name: order_id
+            description: "Identificador único del pedido."
+            tests:
+              - not_null
+              - unique
+
+      - name: order_items
+        description: "Detalles de los ítems dentro de un pedido."
+        loaded_at_field: _fivetran_synced
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - _row
+                - _fivetran_synced
+                - order_item_id
+                - quantity
+                - price_at_purchase
+                - product_id
+                - order_id
+        columns:
+          - name: _row
+            description: "Identificador único de la fila en el sistema original."
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: "Fecha y hora en que la fila fue sincronizada desde Fivetran."
+            tests:
+              - not_null
+          - name: order_item_id
+            description: "Identificador único del ítem dentro de un pedido."
+            tests:
+              - not_null
+              - unique
+          - name: quantity
+            description: "Cantidad del producto en el pedido."
+            tests:
+              - not_null
+          - name: price_at_purchase
+            description: "Precio del producto en el momento de la compra."
+            tests:
+              - not_null
+          - name: product_id
+            description: "Identificador único del producto."
+            tests:
+              - not_null
+          - name: order_id
+            description: "Identificador único del pedido al que pertenece el ítem."
+            tests:
+              - not_null
+
+      - name: payment
+        description: "Información sobre los pagos realizados para los pedidos."
+        loaded_at_field: _fivetran_synced
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - _row
+                - _fivetran_synced
+                - amount
+                - transaction_status
+                - payment_id
+                - order_id
+                - payment_method
+        columns:
+          - name: _row
+            description: "Identificador único de la fila en el sistema original."
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: "Fecha y hora en que la fila fue sincronizada desde Fivetran."
+            tests:
+              - not_null
+          - name: amount
+            description: "Cantidad de dinero pagada por el pedido."
+            tests:
+              - not_null
+          - name: transaction_status
+            description: "Estado de la transacción de pago (por ejemplo, exitoso, fallido)."
+            tests:
+              - not_null
+          - name: payment_id
+            description: "Identificador único del pago."
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            description: "Identificador único del pedido relacionado con este pago."
+            tests:
+              - not_null
+              - unique
+          - name: payment_method
+            description: "Método de pago utilizado (por ejemplo, tarjeta de crédito, PayPal)."
+            tests:
+              - not_null
+
+      - name: shipments
+        description: "Información sobre los envíos de los pedidos."
+        loaded_at_field: _fivetran_synced
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - _row
+                - _fivetran_synced
+                - carrier
+                - delivery_date
+                - tracking_number
+                - shipment_date
+                - shipment_id
+                - order_id
+                - shipment_status
+        columns:
+          - name: _row
+            description: "Identificador único de la fila en el sistema original."
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: "Fecha y hora en que la fila fue sincronizada desde Fivetran."
+            tests:
+              - not_null
+          - name: carrier
+            description: "Nombre de la empresa de mensajería o transportista encargado del envío."
+            tests:
+              - not_null
+          - name: delivery_date
+            description: "Fecha estimada de entrega del pedido."
+            tests:
+              - not_null
+          - name: tracking_number
+            description: "Número de seguimiento del envío."
+            tests:
+              - not_null
+              - unique:
+                  config:
+                    severity: warn
+          - name: shipment_date
+            description: "Fecha en que el pedido fue enviado."
+            tests:
+              - not_null
+          - name: shipment_id
+            description: "Identificador único del envío."
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            description: "Identificador único del pedido relacionado con este envío."
+            tests:
+              - not_null
+              - unique
+          - name: shipment_status
+            description: "Estado del envío (por ejemplo, en tránsito, entregado)."
+            tests:
+              - not_null
