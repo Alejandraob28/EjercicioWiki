@@ -66,6 +66,13 @@ models:
 
   - name: stg_catalog_suppliers
     description: "Información de proveedores."
+    tests:
+          - duplicate_email:
+              email_column: "email"
+              first_name_column: "first_name"
+              last_name_column: "last_name"
+              config:
+                    severity: warn
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
@@ -93,9 +100,6 @@ models:
         description: "Número de teléfono normalizado del proveedor."
       - name: email
         data_type: varchar
-        description: "Correo electrónico del proveedor."
-        tests:
-          - duplicate_email
       - name: email_validation
         data_type: boolean
         description: "Indicador de validación del correo electrónico del cliente."

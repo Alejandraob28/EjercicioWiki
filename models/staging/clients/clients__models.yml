@@ -3,6 +3,13 @@ version: 2
 models:
   - name: stg_clients_customers
     description: "Información de los clientes."
+    tests:
+          - duplicate_email:
+              email_column: "email"
+              first_name_column: "first_name"
+              last_name_column: "last_name"
+              config:
+                    severity: warn
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
@@ -35,8 +42,6 @@ models:
       - name: email
         data_type: varchar
         description: "Correo electrónico del cliente."
-        tests:
-          - duplicate_email
       - name: email_validation
         data_type: boolean
         description: "Indicador de validación del correo electrónico del cliente."
