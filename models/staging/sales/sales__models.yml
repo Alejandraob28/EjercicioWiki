@@ -1,0 +1,136 @@
+version: 2
+
+models:
+  - name: stg_sales_order_items
+    description: "Artículos de los pedidos realizados en la tienda."
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida de los datos."
+      - name: order_item_id
+        data_type: number
+        description: "Identificador único del ítem dentro de un pedido."
+      - name: order_id
+        data_type: number
+        description: "Identificador único del pedido al que pertenece el ítem."
+      - name: product_id
+        data_type: number
+        description: "Identificador único del producto en el pedido."
+      - name: price_at_purchase_corrected
+        data_type: float
+        description: "Precio del producto en el momento de la compra, corregido."
+        tests:
+          - dbt_utils.accepted_range:
+              column_name: price_at_purchase_corrected
+              min_value: 0
+      - name: quantity
+        data_type: number
+        description: "Cantidad de unidades del producto en el pedido."
+
+  - name: stg_sales_orders
+    description: "Pedidos realizados por los clientes en la tienda."
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida de los datos."
+      - name: order_id
+        data_type: number
+        description: "Identificador único del pedido."
+        tests:
+          - relationships:
+              to: ref('stg_sales_order_items','stg_sales_shipments')
+              field: order_id
+      - name: customer_id
+        data_type: number
+        description: "Identificador único del cliente que realizó el pedido."
+      - name: order_date
+        data_type: date
+        description: "Fecha en que se realizó el pedido."
+      - name: total_price_corrected
+        data_type: float
+        description: "Precio total del pedido, corregido."
+        tests:
+          - dbt_utils.accepted_range:
+              column_name: total_price_corrected
+              min_value: 0
+
+  - name: stg_sales_payment
+    description: "Detalles de los pagos realizados para los pedidos."
+    tests:
+     - dbt_utils.equality:
+          compare_model: ref('stg_sales_payment')
+          compare_columns:
+            - payment_id
+            - order_id
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida de los datos."
+      - name: order_id
+        data_type: number
+        description: "Identificador único del pedido relacionado con el pago."
+        tests:
+          - relationships:
+              to: ref('stg_sales_shipments')
+              field: order_id
+      - name: payment_id
+        data_type: number
+        description: "Identificador único del pago."
+      - name: amount_corrected
+        data_type: float
+        description: "Monto del pago realizado, corregido."
+        tests:
+          - dbt_utils.accepted_range:
+              column_name: amount_corrected
+              min_value: 0
+      - name: payment_method_normalized
+        data_type: varchar
+        description: "Método de pago utilizado (por ejemplo, tarjeta de crédito, PayPal)."
+        tests:
+        - accepted_values:
+            values: ['Credit Card']
+      - name: transaction_status
+        data_type: varchar
+        description: "Estado de la transacción de pago (por ejemplo, exitoso, fallido)."
+        tests:
+        - accepted_values:
+            values: ['Completed', 'Failed', 'Pending']
+
+
+  - name: stg_sales_shipments
+    description: "Detalles sobre los envíos de los pedidos."
+    tests:
+     - dbt_utils.equality:
+          compare_model: ref('stg_sales_shipments')
+          compare_columns:
+            - shipment_id
+            - order_id
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida de los datos."
+      - name: order_id
+        data_type: number
+        description: "Identificador único del pedido relacionado con el envío."
+      - name: shipment_id
+        data_type: number
+        description: "Identificador único del envío."
+      - name: shipment_date
+        data_type: date
+        description: "Fecha en que el pedido fue enviado."
+      - name: tracking_number
+        data_type: varchar
+        description: "Número de seguimiento del envío."
+
+      - name: carrier
+        data_type: varchar
+        description: "Nombre de la empresa de mensajería o transportista encargado del envío."
+      - name: shipment_status
+        data_type: varchar
+        description: "Estado del envío (por ejemplo, en tránsito, entregado)."
+        tests:
+        - accepted_values:
+            values: ['Shipped', 'Pending', 'Delivered', 'Cancelled']
+      - name: delivery_date
+        data_type: date
+        description: "Fecha estimada o real de entrega del pedido."

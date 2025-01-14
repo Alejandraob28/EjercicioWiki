@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: stg_catalog_categories
+    description: "Categorías de productos."
+    columns:
+      - name: sk_category
+        data_type: varchar
+        description: "Identificador único de la categoría."
+        tests:
+              - unique
+      - name: category
+        data_type: varchar
+        description: "Nombre de la categoría."
+        tests:
+              - unique
+
+  - name: stg_catalog_productnames
+    description: "Nombres de productos."
+    columns:
+      - name: sk_productname
+        data_type: varchar
+        description: "Identificador único del nombre del producto."
+        tests:
+              - unique
+      - name: product_name
+        data_type: varchar
+        description: "Nombre del producto."
+        tests:
+              - unique
+
+
+  - name: stg_catalog_products
+    description: "Información de productos."
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida."
+      - name: product_id
+        data_type: number
+        description: "Identificador único del producto."
+        tests:
+          - relationships:
+              to: ref('stg_clients_reviews','stg_sales_order_items')
+              field: product_id
+      - name: supplier_id
+        data_type: number
+        description: "Identificador del proveedor del producto."
+        tests:
+          - relationships:
+              to: ref('stg_catalog_suppliers') 
+              field: supplier_id
+      - name: price_corrected
+        data_type: float
+        description: "Precio corregido del producto."
+        tests:
+          - dbt_utils.accepted_range:
+              column_name: price_corrected
+              min_value: 0
+      - name: category_name
+        data_type: varchar
+        description: "Valor hash de la categoría del producto."
+      - name: product_name
+        data_type: varchar
+        description: "Valor hash del nombre del producto."
+
+  - name: stg_catalog_suppliers
+    description: "Información de proveedores."
+    columns:
+      - name: fivetran_synced_corrected
+        data_type: varchar
+        description: "Fecha y hora de la última sincronización corregida."
+      - name: supplier_id
+        data_type: number
+        description: "Identificador único del proveedor."
+      - name: first_name
+        data_type: varchar
+        description: "Primer nombre del proveedor."
+      - name: last_name
+        data_type: varchar
+        description: "Apellido del proveedor."
+      - name: street
+        data_type: varchar
+        description: "Dirección del proveedor."
+      - name: city
+        data_type: varchar
+        description: "Ciudad del proveedor."
+      - name: state
+        data_type: varchar
+        description: "Estado del proveedor."
+      - name: phone_number_norm
+        data_type: varchar
+        description: "Número de teléfono normalizado del proveedor."
+      - name: email
+        data_type: varchar
+        description: "Correo electrónico del proveedor."
+        tests:
+          - duplicate_email
+      - name: email_validation
+        data_type: boolean
+        description: "Indicador de validación del correo electrónico del cliente."
