@@ -1,6 +1,37 @@
 version: 2
 
 models:
+
+  - name: stg_clients_customer_id
+    description: "Clientes."
+    columns:
+      - name: sk_customer_id
+        data_type: varchar
+        description: "Identificador único del nombre del cliente (hash de la concatenación de su nombre y apellido)."
+        tests:
+              - unique
+      - name: customer_id
+        data_type: varchar
+        description: "ID del cliente."
+        tests:
+              - unique
+  
+
+  - name: stg_clients_review_id
+    description: "Reseñas."
+    columns:
+      - name: sk_review_id
+        data_type: varchar
+        description: "Identificador único de la review (hash de la concatenación de product_id y customer_id)."
+        tests:
+              - unique
+      - name: review_id
+        data_type: varchar
+        description: "ID de la review."
+        tests:
+              - unique
+
+
   - name: stg_clients_customers
     description: "Información de los clientes."
     tests:

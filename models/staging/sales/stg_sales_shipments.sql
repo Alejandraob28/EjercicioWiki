@@ -16,11 +16,11 @@ WITH RankedShipments AS (
         -- Uso de la macro para formatear la fecha de Fivetran
         {{ format_fivetran_date('_fivetran_synced') }} AS fivetran_synced_corrected,
 
-        -- Incluir order_id tal cual está
-        order_id,
+        -- Incluir el hash de order_id
+        {{ calculate_md5('order_id') }} AS order_id,
 
-        -- Incluir shipment_id tal cual está
-        shipment_id,
+        -- Incluir el hash de shipment_id 
+        {{ calculate_md5('CONCAT(order_id, \' \',tracking_number)') }} AS shipment_id,
 
         -- Indicar shipment_date tal cual está
         shipment_date,

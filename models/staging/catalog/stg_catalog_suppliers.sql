@@ -15,7 +15,7 @@ WITH RankedSuppliers AS (
         {{ format_fivetran_date('_fivetran_synced') }} AS fivetran_synced_corrected,
         
         -- Extracción del id del proveedor
-        supplier_id,
+        {{ calculate_md5('CONCAT(supplier_name, \' \',address)') }} AS supplier_id,
         
         -- Extracción del primer nombre
         TRIM(SUBSTRING(contact_name, 1, POSITION(' ' IN contact_name) - 1)) AS first_name,
@@ -28,9 +28,6 @@ WITH RankedSuppliers AS (
         
         -- Uso de la macro para normalizar el número de teléfono
         {{ normalize_phone_number('phone_number') }} AS phone_number_norm,
-        
-        -- Extracción del nombre del proveedor
-        supplier_name,
         
         -- Extracción del correo electrónico
         email,
@@ -55,4 +52,4 @@ SELECT
     email_validation
 FROM RankedSuppliers
 WHERE _row = 1  
-ORDER BY supplier_name
+ORDER BY supplier_id

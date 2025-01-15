@@ -1,6 +1,64 @@
 version: 2
 
 models:
+
+  - name: stg_sales_order_item_id
+    description: "Productos de un pedido."
+    columns:
+      - name: sk_order_item_id
+        data_type: varchar
+        description: "Identificador único del producto dentro de un pedido (hash de la concatenación de order_id, order_item_id y product_id)."
+        tests:
+              - unique
+      - name: order_item_id
+        data_type: varchar
+        description: "ID del producto dentro de un pedido."
+        tests:
+              - unique
+  
+  - name: stg_sales_order_id
+    description: "Pedidos."
+    columns:
+      - name: sk_order_id
+        data_type: varchar
+        description: "Identificador único del pedido (hash de su ID)."
+        tests:
+              - unique
+      - name: order_id
+        data_type: varchar
+        description: "ID del pedido."
+        tests:
+              - unique
+
+  - name: stg_sales_payment_id
+    description: "Pagos."
+    columns:
+      - name: sk_payment_id
+        data_type: varchar
+        description: "Identificador único del pago (hash de la concatenación del orer_id y el método de pago)."
+        tests:
+              - unique
+      - name: payment_id
+        data_type: varchar
+        description: "ID del pago."
+        tests:
+              - unique
+
+
+  - name: stg_sales_shipment_id
+    description: "Envíos."
+    columns:
+      - name: sk_shipment_id
+        data_type: varchar
+        description: "Identificador único del envío (hash del tracking_number)."
+        tests:
+              - unique
+      - name: shipment_id
+        data_type: varchar
+        description: "ID del envío."
+        tests:
+              - unique
+
   - name: stg_sales_order_items
     description: "Artículos de los pedidos realizados en la tienda."
     columns:

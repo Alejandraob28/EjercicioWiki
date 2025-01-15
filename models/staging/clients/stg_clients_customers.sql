@@ -15,7 +15,7 @@ WITH RankedCustomers AS (
         {{ format_fivetran_date('_fivetran_synced') }} AS fivetran_synced_corrected,
 
         -- Extracción del ID del cliente
-        customer_id,
+        {{ calculate_md5('CONCAT(first_name, \' \',last_name, \' \',phone_number, \' \',address)') }} AS customer_id,
         
         -- Datos del cliente
         first_name,

@@ -14,11 +14,11 @@ WITH RankedPayment AS (
         -- Uso de la macro para formatear la fecha de Fivetran
         {{ format_fivetran_date('_fivetran_synced') }} AS fivetran_synced_corrected,
 
-        -- Incluir el order_id tal cual está
-        order_id,
+        -- Incluir el hash de order_id 
+        {{ calculate_md5('order_id') }} AS order_id,
 
-        -- Incluir el payment_id tal cual está
-        payment_id,
+        -- Incluir el hash de payment_id 
+        {{ calculate_md5('CONCAT(order_id, \' \',payment_method)') }} AS payment_id,
 
         -- Uso de la macro para redondear la cantidad
         {{ round_price('amount') }} AS amount_corrected,

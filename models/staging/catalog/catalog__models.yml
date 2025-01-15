@@ -1,12 +1,12 @@
 version: 2
 
 models:
-  - name: stg_catalog_categories
+  - name: stg_catalog_category_id
     description: "Categorías de productos."
     columns:
-      - name: sk_category
+      - name: sk_category_id
         data_type: varchar
-        description: "Identificador único de la categoría."
+        description: "Identificador único de la categoría (hash del nombre de la categoría)."
         tests:
               - unique
       - name: category
@@ -15,17 +15,31 @@ models:
         tests:
               - unique
 
-  - name: stg_catalog_productnames
+  - name: stg_catalog_product_id
     description: "Nombres de productos."
     columns:
-      - name: sk_productname
+      - name: sk_product_id
         data_type: varchar
-        description: "Identificador único del nombre del producto."
+        description: "Identificador único del nombre del producto (hash del nombre de producto)."
         tests:
               - unique
-      - name: product_name
+      - name: product_id
         data_type: varchar
-        description: "Nombre del producto."
+        description: "ID del producto."
+        tests:
+              - unique
+
+  - name: stg_catalog_supplier_id
+    description: "Nombres de proveedores."
+    columns:
+      - name: sk_supplier_id
+        data_type: varchar
+        description: "Identificador único del nombre del proveedor (hash del nombre del proveedor)."
+        tests:
+              - unique
+      - name: supplier_id
+        data_type: varchar
+        description: "ID del proveedor."
         tests:
               - unique
 
@@ -45,7 +59,7 @@ models:
               field: product_id
       - name: supplier_id
         data_type: number
-        description: "Identificador del proveedor del producto."
+        description: "Identificador único del proveedor del producto."
         tests:
           - relationships:
               to: ref('stg_catalog_suppliers') 
@@ -57,12 +71,10 @@ models:
           - dbt_utils.accepted_range:
               column_name: price_corrected
               min_value: 0
-      - name: category_name
+      - name: category_id
         data_type: varchar
         description: "Valor hash de la categoría del producto."
-      - name: product_name
-        data_type: varchar
-        description: "Valor hash del nombre del producto."
+
 
   - name: stg_catalog_suppliers
     description: "Información de proveedores."

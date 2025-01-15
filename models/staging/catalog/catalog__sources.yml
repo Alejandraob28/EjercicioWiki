@@ -97,6 +97,9 @@ sources:
             description: "Número de teléfono de contacto del proveedor."
             tests:
               - not_null
+              - unique:
+                  config:
+                    severity: warn 
           - name: supplier_name
             description: "Nombre del proveedor."
             tests:
