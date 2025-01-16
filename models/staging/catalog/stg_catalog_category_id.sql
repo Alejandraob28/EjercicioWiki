@@ -1,6 +1,6 @@
 SELECT DISTINCT 
     -- Uso de la macro 'calculate_md5' para calcular el hash MD5 de la columna 'category'
-    {{ calculate_md5('category') }} as SK_category,  
+    {{ calculate_md5('category') }} as SK_category_id,  
     
     -- Se selecciona la columna CATEGORY tal como está, sin modificaciones
     category

@@ -3,43 +3,46 @@ WITH RankedProducts AS (
         
         -- Uso de la macro para asignar el número de fila y eliminar duplicados
         {{ eliminate_duplicates([
-            '_fivetran_synced', 
-            'price', 
-            'product_id', 
-            'category', 
-            'product_name', 
-            'supplier_id'
-        ]) }} AS _row,
+            'cp._fivetran_synced',  
+            'cp.price', 
+            'cp.product_id', 
+            'cp.category', 
+            'cp.product_name', 
+            'cp.supplier_id' 
+        ]) }} AS _row,  -- Asignación de número de fila por duplicado
 
         -- Uso de la macro para formatear la fecha de sincronización de Fivetran
-        {{ format_fivetran_date('_fivetran_synced') }} AS fivetran_synced_corrected,
+        {{ format_fivetran_date('cp._fivetran_synced') }} AS fivetran_synced_corrected,  -- Usando el alias de la tabla productos
 
-        -- Incluir el product_id tal cual está
-        product_id,
-        
+        -- Incluir el hash del product_name
+        cpp.SK_product_id,
+
         -- Uso de la macro para redondear el precio
-        {{ round_price('price') }} AS price_corrected,
+        {{ round_price('cp.price') }} AS price_corrected,  -- Usando el alias de la tabla productos
 
         -- Uso de la macro para calcular el hash de la categoría
-        {{ calculate_md5('category') }} AS category_name,
+        cccc.SK_category_id,
         
-        -- Uso de la macro para calcular el hash del nombre del producto
-        {{ calculate_md5('product_name') }} AS product_name,
+        -- Incluir el hash de supplier_name de la tabla suppliers
+        css.SK_supplier_id,
         
-        -- Incluir el supplier_id tal cual está
-        supplier_id
     FROM 
         -- Tabla de productos desde la base de datos
-        {{ source('catalog', 'products') }}
+        {{ source('catalog', 'products') }} cp
+    LEFT JOIN {{ ref("stg_catalog_supplier_id") }} css
+        ON cp.supplier_id = css.supplier_id  
+    LEFT JOIN {{ ref("stg_catalog_product_id") }} cpp
+        ON cp.product_id = cpp.product_id  
+    LEFT JOIN {{ ref("stg_catalog_category_id") }} cccc
+        ON cp.category = cccc.category 
+
 )
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
-    product_id,
-    supplier_id,
-    price_corrected,
-    category_name,
-    product_name
+    SK_product_id,
+    SK_supplier_id,
+    SK_category_id,
+    price_corrected
 FROM RankedProducts
 WHERE _row = 1  -- Se selecciona solo el primer registro de cada grupo de duplicados
-ORDER BY product_id ASC

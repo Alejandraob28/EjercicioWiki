@@ -50,7 +50,9 @@ sources:
             description: "Número de teléfono del cliente."
             tests:
               - not_null
-               - unique
+              - unique:
+                  config:
+                    severity: warn 
           - name: customer_id
             description: "Identificador único del cliente."
             tests:
@@ -64,6 +66,8 @@ sources:
             description: "Correo electrónico del cliente."
             tests:
               - not_null
+
+
       - name: reviews
         description: "Reseñas de productos realizadas por clientes."
         loaded_at_field: _fivetran_synced

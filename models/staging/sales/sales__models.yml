@@ -1,19 +1,79 @@
 version: 2
 
 models:
+
+  - name: stg_sales_order_item_id
+    description: "Productos de un pedido."
+    columns:
+      - name: SK_order_item_id
+        data_type: varchar
+        description: "Identificador único del producto dentro de un pedido (hash de la concatenación de order_id, order_item_id y product_id)."
+        tests:
+              - unique
+      - name: order_item_id
+        data_type: varchar
+        description: "ID del producto dentro de un pedido."
+        tests:
+              - unique
+  
+  - name: stg_sales_order_id
+    description: "Pedidos."
+    columns:
+      - name: SK_order_id
+        data_type: varchar
+        description: "Identificador único del pedido (hash de su ID)."
+        tests:
+              - unique
+      - name: order_id
+        data_type: varchar
+        description: "ID del pedido."
+        tests:
+              - unique
+
+  - name: stg_sales_payment_id
+    description: "Pagos."
+    columns:
+      - name: SK_payment_id
+        data_type: varchar
+        description: "Identificador único del pago (hash de la concatenación del orer_id y el método de pago)."
+        tests:
+              - unique
+      - name: payment_id
+        data_type: varchar
+        description: "ID del pago."
+        tests:
+              - unique
+
+
+  - name: stg_sales_shipment_id
+    description: "Envíos."
+    columns:
+      - name: SK_shipment_id
+        data_type: varchar
+        description: "Identificador único del envío (hash del order_id y el tracking_number)."
+        tests:
+              - unique
+      - name: shipment_id
+        data_type: varchar
+        description: "ID del envío."
+        tests:
+              - unique
+
   - name: stg_sales_order_items
     description: "Artículos de los pedidos realizados en la tienda."
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida de los datos."
-      - name: order_item_id
+      - name: SK_order_item_id
         data_type: number
         description: "Identificador único del ítem dentro de un pedido."
-      - name: order_id
+        tests:
+          - unique
+      - name: SK_order_id
         data_type: number
         description: "Identificador único del pedido al que pertenece el ítem."
-      - name: product_id
+      - name: SK_product_id
         data_type: number
         description: "Identificador único del producto en el pedido."
       - name: price_at_purchase_corrected
@@ -33,14 +93,15 @@ models:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida de los datos."
-      - name: order_id
+      - name: SK_order_id
         data_type: number
         description: "Identificador único del pedido."
         tests:
           - relationships:
               to: ref('stg_sales_order_items','stg_sales_shipments')
-              field: order_id
-      - name: customer_id
+              field: SK_order_id
+          - unique 
+      - name: SK_customer_id
         data_type: number
         description: "Identificador único del cliente que realizó el pedido."
       - name: order_date
@@ -60,22 +121,25 @@ models:
      - dbt_utils.equality:
           compare_model: ref('stg_sales_payment')
           compare_columns:
-            - payment_id
-            - order_id
+            - SK_payment_id
+            - SK_order_id
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida de los datos."
-      - name: order_id
+      - name: SK_order_id
         data_type: number
         description: "Identificador único del pedido relacionado con el pago."
         tests:
           - relationships:
               to: ref('stg_sales_shipments')
-              field: order_id
-      - name: payment_id
+              field: SK_order_id
+          - unique
+      - name: SK_payment_id
         data_type: number
         description: "Identificador único del pago."
+        tests:
+          - unique
       - name: amount_corrected
         data_type: float
         description: "Monto del pago realizado, corregido."
@@ -103,18 +167,22 @@ models:
      - dbt_utils.equality:
           compare_model: ref('stg_sales_shipments')
           compare_columns:
-            - shipment_id
-            - order_id
+            - SK_shipment_id
+            - SK_order_id
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida de los datos."
-      - name: order_id
+      - name: SK_order_id
         data_type: number
         description: "Identificador único del pedido relacionado con el envío."
-      - name: shipment_id
+        tests:
+          - unique
+      - name: SK_shipment_id
         data_type: number
         description: "Identificador único del envío."
+        tests:
+          - unique
       - name: shipment_date
         data_type: date
         description: "Fecha en que el pedido fue enviado."
