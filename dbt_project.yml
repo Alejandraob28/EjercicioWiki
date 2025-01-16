@@ -37,13 +37,22 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   my_new_project:
-    # Applies to all files under models/example/
-    +database: "{{env_var('DBT_DB')}}_SILVER_ICAROSPATH_DB"
-    +schema: "{{env_var('DBT_SCHEMA_NAME','default_schema')}}"
     staging:
+      # Applies to all files under models/example/
+      +database: "{{env_var('DBT_DB')}}_SILVER_ICAROSPATH_DB"
+      +schema: "{{env_var('DBT_SCHEMA_NAME','default_schema')}}"
       catalog:
         +materialized: table
       clients:
         +materialized: table
       sales:
         +materialized: table
+
+    marts:
+      +database: "{{env_var('DBT_DB')}}_GOLD_ICAROSPATH_DB"
+      +schema: "{{env_var('DBT_SCHEMA_NAME','default_schema')}}"
+      core:
+        +materialized: table
+
+tests:
+      +severity: warn  # all tests

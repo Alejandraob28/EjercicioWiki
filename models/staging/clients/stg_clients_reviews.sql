@@ -15,11 +15,11 @@ WITH RankedReviews AS (
         {{ format_fivetran_date('cr._fivetran_synced') }} AS fivetran_synced_corrected,
 
         -- Otros campos como el customer_id y review_id en su hash
-        {{ calculate_md5('CONCAT(cc.first_name, \' \', cc.last_name, \' \',cc.phone_number, \' \',cc.address)') }} AS customer_id,
+        ccc.SK_customer_id,
 
-        {{ calculate_md5('CONCAT(cr.customer_id, \' \', cr.product_id)') }} AS review_id,  
+        crr. SK_review_id,  
 
-        {{ calculate_md5('CONCAT(cp.product_id, \' \',cp.product_name)') }} AS product_id,
+        cpp.SK_product_id,
 
         review_date,
 
@@ -35,21 +35,22 @@ WITH RankedReviews AS (
 
     FROM 
         {{ source('clients', 'reviews') }} cr
-    LEFT JOIN {{ source('clients', 'customers') }} cc
-        ON cr.customer_id = cc.customer_id  -- Asegúrate de que la columna customer_id sea la misma en ambas tablas
-    LEFT JOIN {{ source('catalog', 'products') }} cp
-        ON cr.product_id = cp.product_id  -- Asegúrate de que la columna product_id sea la misma en ambas tablas
+    LEFT JOIN {{ ref("stg_catalog_product_id") }} cpp
+        ON cr.product_id = cpp.product_id 
+    LEFT JOIN {{ ref("stg_clients_review_id") }} crr
+        ON cr.review_id = crr.review_id  
+    LEFT JOIN {{ ref("stg_clients_customer_id") }} ccc
+        ON cr.customer_id = ccc.customer_id 
 )
 
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
-    customer_id,
-    review_id,
-    product_id,
+    SK_review_id,
+    SK_customer_id,
+    SK_product_id,
     review_date,
     corrected_rating,
     clean_review_text
 FROM RankedReviews
 WHERE _row = 1  
-ORDER BY customer_id ASC

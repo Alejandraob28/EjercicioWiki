@@ -8,37 +8,41 @@ WITH RankedProducts AS (
             'cp.product_id', 
             'cp.category', 
             'cp.product_name', 
-            'cs.supplier_id' 
+            'cp.supplier_id' 
         ]) }} AS _row,  -- Asignación de número de fila por duplicado
 
         -- Uso de la macro para formatear la fecha de sincronización de Fivetran
         {{ format_fivetran_date('cp._fivetran_synced') }} AS fivetran_synced_corrected,  -- Usando el alias de la tabla productos
 
         -- Incluir el hash del product_name
-        {{ calculate_md5('CONCAT(cp.product_id, \' \',cp.product_name)') }} AS product_id,  -- Usando el alias de la tabla productos
-        
+        cpp.SK_product_id,
+
         -- Uso de la macro para redondear el precio
         {{ round_price('cp.price') }} AS price_corrected,  -- Usando el alias de la tabla productos
 
         -- Uso de la macro para calcular el hash de la categoría
-        {{ calculate_md5('cp.category') }} AS category_id,  -- Usando el alias de la tabla productos
+        cccc.SK_category_id,
         
         -- Incluir el hash de supplier_name de la tabla suppliers
-        {{ calculate_md5('CONCAT(cs.supplier_name, \' \',cs.address)') }} AS supplier_id  -- Usando el alias de la tabla proveedores
+        css.SK_supplier_id,
         
     FROM 
         -- Tabla de productos desde la base de datos
         {{ source('catalog', 'products') }} cp
-    LEFT JOIN {{ source('catalog','suppliers') }} cs
-        ON cp.supplier_id = cs.supplier_id  -- Asegúrate de que la columna product_id sea la misma en ambas tablas
+    LEFT JOIN {{ ref("stg_catalog_supplier_id") }} css
+        ON cp.supplier_id = css.supplier_id  
+    LEFT JOIN {{ ref("stg_catalog_product_id") }} cpp
+        ON cp.product_id = cpp.product_id  
+    LEFT JOIN {{ ref("stg_catalog_category_id") }} cccc
+        ON cp.category = cccc.category 
+
 )
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
-    product_id,
-    supplier_id,
-    price_corrected,
-    category_id
+    SK_product_id,
+    SK_supplier_id,
+    SK_category_id,
+    price_corrected
 FROM RankedProducts
 WHERE _row = 1  -- Se selecciona solo el primer registro de cada grupo de duplicados
-ORDER BY product_id ASC

@@ -2,46 +2,48 @@ WITH RankedSuppliers AS (
     SELECT
         -- Uso de la macro para eliminar duplicados y asignar el número de fila
         {{ eliminate_duplicates([
-            '_fivetran_synced', 
-            'contact_name', 
-            'address', 
-            'phone_number', 
-            'supplier_name', 
-            'supplier_id', 
-            'email' 
+            'cs._fivetran_synced', 
+            'cs.contact_name', 
+            'cs.address', 
+            'cs.phone_number', 
+            'cs.supplier_name', 
+            'cs.supplier_id', 
+            'cs.email' 
         ]) }} AS _row,  -- Asignación de número de fila por duplicado
 
         -- Uso de la macro para formatear la fecha Fivetran
-        {{ format_fivetran_date('_fivetran_synced') }} AS fivetran_synced_corrected,
+        {{ format_fivetran_date('cs._fivetran_synced') }} AS fivetran_synced_corrected,
         
         -- Extracción del id del proveedor
-        {{ calculate_md5('CONCAT(supplier_name, \' \',address)') }} AS supplier_id,
+        css.SK_supplier_id,
         
         -- Extracción del primer nombre
-        TRIM(SUBSTRING(contact_name, 1, POSITION(' ' IN contact_name) - 1)) AS first_name,
+        TRIM(SUBSTRING(cs.contact_name, 1, POSITION(' ' IN cs.contact_name) - 1)) AS first_name,
         
         -- Extracción del apellido (condición si no existe apellido)
-        TRIM(SUBSTRING(contact_name, POSITION(' ' IN contact_name) + 1)) AS last_name,
+        TRIM(SUBSTRING(cs.contact_name, POSITION(' ' IN cs.contact_name) + 1)) AS last_name,
         
         -- Uso de la macro para separar la dirección en 3 partes (calle, ciudad, estado)
-        {{ split_address('address') }},
+        {{ split_address('cs.address') }},
         
         -- Uso de la macro para normalizar el número de teléfono
-        {{ normalize_phone_number('phone_number') }} AS phone_number_norm,
+        {{ normalize_phone_number('cs.phone_number') }} AS phone_number_norm,
         
         -- Extracción del correo electrónico
-        email,
+        cs.email,
         
         -- Uso de la macro para validar el correo electrónico
-        {{ validate_email('email') }} AS email_validation
+        {{ validate_email('cs.email') }} AS email_validation
     FROM 
         -- Tabla de datos de proveedores
-        {{ source('catalog', 'suppliers') }}
+        {{ source('catalog', 'suppliers') }} cs
+    LEFT JOIN {{ ref("stg_catalog_supplier_id") }} css
+        ON cs.supplier_id = css.supplier_id  
 )
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
-    supplier_id,
+    SK_supplier_id,
     first_name,
     last_name,
     street,  
@@ -52,4 +54,3 @@ SELECT
     email_validation
 FROM RankedSuppliers
 WHERE _row = 1  
-ORDER BY supplier_id

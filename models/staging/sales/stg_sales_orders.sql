@@ -14,9 +14,9 @@ WITH RankedOrders AS (
         {{ format_fivetran_date('so._fivetran_synced') }} AS fivetran_synced_corrected,
 
         -- Otros campos (id con su hash) y la fecha de pedido como está
-        {{ calculate_md5('so.order_id') }} AS order_id,
+        soo.SK_order_id,
         
-        {{ calculate_md5('CONCAT(cc.first_name, \' \', cc.last_name, \' \',cc.phone_number, \' \',cc.address)') }} AS customer_id,
+        ccc.SK_customer_id,
 
         order_date,
 
@@ -25,16 +25,18 @@ WITH RankedOrders AS (
 
     FROM 
         {{ source('sales', 'orders') }} so
-    LEFT JOIN {{ source('clients', 'customers') }} cc
-        ON so.customer_id = cc.customer_id  -- Asegúrate de que la columna customer_id sea la misma en ambas tablas
+    LEFT JOIN {{ ref("stg_sales_order_id") }} soo
+        ON so.order_id = soo.order_id 
+    LEFT JOIN {{ ref("stg_clients_customer_id") }} ccc
+        ON so.customer_id = ccc.customer_id 
 )
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
-    order_id,
-    customer_id,
+    SK_order_id,
+    SK_customer_id,
     order_date,
     total_price_corrected
 FROM RankedOrders
 WHERE _row = 1 
-ORDER BY order_id ASC
+

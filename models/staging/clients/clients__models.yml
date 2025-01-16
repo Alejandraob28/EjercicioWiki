@@ -5,9 +5,9 @@ models:
   - name: stg_clients_customer_id
     description: "Clientes."
     columns:
-      - name: sk_customer_id
+      - name: SK_customer_id
         data_type: varchar
-        description: "Identificador único del nombre del cliente (hash de la concatenación de su nombre y apellido)."
+        description: "Identificador único del nombre del cliente (hash de la concatenación de su nombre, apellido y localización)."
         tests:
               - unique
       - name: customer_id
@@ -20,9 +20,9 @@ models:
   - name: stg_clients_review_id
     description: "Reseñas."
     columns:
-      - name: sk_review_id
+      - name: SK_review_id
         data_type: varchar
-        description: "Identificador único de la review (hash de la concatenación de product_id y customer_id)."
+        description: "Identificador único de la review (hash de la concatenación de review_id y product_id)."
         tests:
               - unique
       - name: review_id
@@ -39,19 +39,18 @@ models:
               email_column: "email"
               first_name_column: "first_name"
               last_name_column: "last_name"
-              config:
-                    severity: warn
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida de los datos."
-      - name: customer_id
+      - name: SK_customer_id
         data_type: number
         description: "Identificador único del cliente."
         tests:
           - relationships:
               to: ref('stg_clients_reviews','stg_sales_orders') 
-              field: customer_id
+              field: SK_customer_id
+          - unique
       - name: first_name
         data_type: varchar
         description: "Primer nombre del cliente."
@@ -83,13 +82,15 @@ models:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida de los datos."
-      - name: customer_id
+      - name: SK_customer_id
         data_type: number
         description: "Identificador único del cliente que dejó la reseña."
-      - name: review_id
+      - name: SK_review_id
         data_type: number
         description: "Identificador único de la reseña."
-      - name: product_id
+        tests:
+          - unique
+      - name: SK_product_id
         data_type: number
         description: "Identificador del producto reseñado."
       - name: review_date

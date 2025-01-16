@@ -4,7 +4,7 @@ models:
   - name: stg_catalog_category_id
     description: "Categorías de productos."
     columns:
-      - name: sk_category_id
+      - name: SK_category_id
         data_type: varchar
         description: "Identificador único de la categoría (hash del nombre de la categoría)."
         tests:
@@ -18,9 +18,9 @@ models:
   - name: stg_catalog_product_id
     description: "Nombres de productos."
     columns:
-      - name: sk_product_id
+      - name: SK_product_id
         data_type: varchar
-        description: "Identificador único del nombre del producto (hash del nombre de producto)."
+        description: "Identificador único del nombre del producto (hash del ID del producto y su nombre)."
         tests:
               - unique
       - name: product_id
@@ -32,9 +32,9 @@ models:
   - name: stg_catalog_supplier_id
     description: "Nombres de proveedores."
     columns:
-      - name: sk_supplier_id
+      - name: SK_supplier_id
         data_type: varchar
-        description: "Identificador único del nombre del proveedor (hash del nombre del proveedor)."
+        description: "Identificador único del nombre del proveedor (hash del ID del proveedor y sdu nombre)."
         tests:
               - unique
       - name: supplier_id
@@ -50,20 +50,21 @@ models:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida."
-      - name: product_id
+      - name: SK_product_id
         data_type: number
         description: "Identificador único del producto."
         tests:
           - relationships:
               to: ref('stg_clients_reviews','stg_sales_order_items')
-              field: product_id
-      - name: supplier_id
+              field: SK_product_id
+          - unique
+      - name: SK_supplier_id
         data_type: number
         description: "Identificador único del proveedor del producto."
         tests:
           - relationships:
               to: ref('stg_catalog_suppliers') 
-              field: supplier_id
+              field: SK_supplier_id
       - name: price_corrected
         data_type: float
         description: "Precio corregido del producto."
@@ -71,7 +72,7 @@ models:
           - dbt_utils.accepted_range:
               column_name: price_corrected
               min_value: 0
-      - name: category_id
+      - name: SK_category_id
         data_type: varchar
         description: "Valor hash de la categoría del producto."
 
@@ -83,15 +84,15 @@ models:
               email_column: "email"
               first_name_column: "first_name"
               last_name_column: "last_name"
-              config:
-                    severity: warn
     columns:
       - name: fivetran_synced_corrected
         data_type: varchar
         description: "Fecha y hora de la última sincronización corregida."
-      - name: supplier_id
+      - name: SK_supplier_id
         data_type: number
         description: "Identificador único del proveedor."
+        tests:
+          - unique
       - name: first_name
         data_type: varchar
         description: "Primer nombre del proveedor."
