@@ -16,6 +16,9 @@ WITH RankedSuppliers AS (
         
         -- Extracción del id del proveedor
         css.SK_supplier_id,
+
+        -- Extracción del id de localización
+        cls.SK_location_suppliers_id,
         
         -- Extracción del primer nombre
         TRIM(SUBSTRING(cs.contact_name, 1, POSITION(' ' IN cs.contact_name) - 1)) AS first_name,
@@ -38,12 +41,15 @@ WITH RankedSuppliers AS (
         -- Tabla de datos de proveedores
         {{ source('catalog', 'suppliers') }} cs
     LEFT JOIN {{ ref("stg_catalog_supplier_id") }} css
-        ON cs.supplier_id = css.supplier_id  
+        ON cs.supplier_id = css.supplier_id 
+    LEFT JOIN {{ ref("stg_catalog_location_suppliers") }} cls
+        ON cs.address = cls.address  
 )
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
     SK_supplier_id,
+    SK_location_suppliers_id,
     first_name,
     last_name,
     street,  
