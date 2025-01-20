@@ -41,7 +41,7 @@ WITH RankedCustomers AS (
         {{ source('clients', 'customers') }} cc
     LEFT JOIN {{ ref("stg_clients_customer_id") }} ccc
         ON cc.customer_id = ccc.customer_id 
-    LEFT JOIN {{ ref("stg_clients_location_customers") }} clc
+    LEFT JOIN {{ ref("stg_clients_location_customers_id") }} clc
         ON cc.address = clc.address  
 )
 

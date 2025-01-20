@@ -42,7 +42,7 @@ WITH RankedSuppliers AS (
         {{ source('catalog', 'suppliers') }} cs
     LEFT JOIN {{ ref("stg_catalog_supplier_id") }} css
         ON cs.supplier_id = css.supplier_id 
-    LEFT JOIN {{ ref("stg_catalog_location_suppliers") }} cls
+    LEFT JOIN {{ ref("stg_catalog_location_suppliers_id") }} cls
         ON cs.address = cls.address  
 )
 -- Selección final de los registros únicos
