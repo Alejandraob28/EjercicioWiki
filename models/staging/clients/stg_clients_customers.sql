@@ -16,6 +16,9 @@ WITH RankedCustomers AS (
 
         -- Extracción del ID del cliente
         ccc.SK_customer_id,
+    
+        -- Extracción del ID de localización
+        clc.SK_location_customers_id,
         
         -- Datos del cliente
         cc.first_name,
@@ -38,12 +41,15 @@ WITH RankedCustomers AS (
         {{ source('clients', 'customers') }} cc
     LEFT JOIN {{ ref("stg_clients_customer_id") }} ccc
         ON cc.customer_id = ccc.customer_id 
+    LEFT JOIN {{ ref("stg_clients_location_customers_id") }} clc
+        ON cc.address = clc.address  
 )
 
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
     SK_customer_id,
+    SK_location_customers_id,
     first_name,
     last_name,
     street,  

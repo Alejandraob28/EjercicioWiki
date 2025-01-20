@@ -30,6 +30,20 @@ models:
         description: "ID de la review."
         tests:
               - unique
+  
+  - name: stg_catalog_location_customers_id
+    description: "Localizaciones."
+    columns:
+      - name: SK_location_customers_id
+        data_type: varchar
+        description: "Identificador único de la localización (hash del address de los customers)."
+        tests:
+              - unique
+      - name: address
+        data_type: varchar
+        description: "ID del address."
+        tests:
+              - unique
 
 
   - name: stg_clients_customers
@@ -51,6 +65,9 @@ models:
               to: ref('stg_clients_reviews','stg_sales_orders') 
               field: SK_customer_id
           - unique
+      - name: SK_location_customers_id
+        data_type: number
+        description: "Identificador único de la localización."
       - name: first_name
         data_type: varchar
         description: "Primer nombre del cliente."

@@ -25,6 +25,9 @@ WITH RankedSuppliers AS (
         
         -- Uso de la macro para separar la dirección en 3 partes (calle, ciudad, estado)
         {{ split_address('cs.address') }},
+
+        -- Extracción del id de localización
+        cls.SK_location_suppliers_id,
         
         -- Uso de la macro para normalizar el número de teléfono
         {{ normalize_phone_number('cs.phone_number') }} AS phone_number_norm,
@@ -38,12 +41,15 @@ WITH RankedSuppliers AS (
         -- Tabla de datos de proveedores
         {{ source('catalog', 'suppliers') }} cs
     LEFT JOIN {{ ref("stg_catalog_supplier_id") }} css
-        ON cs.supplier_id = css.supplier_id  
+        ON cs.supplier_id = css.supplier_id 
+    LEFT JOIN {{ ref("stg_catalog_location_suppliers_id") }} cls
+        ON cs.address = cls.address  
 )
 -- Selección final de los registros únicos
 SELECT 
     fivetran_synced_corrected,
     SK_supplier_id,
+    SK_location_suppliers_id,
     first_name,
     last_name,
     street,  

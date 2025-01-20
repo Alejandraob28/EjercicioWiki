@@ -1,0 +1,399 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: "Tabla de hechos que contiene información sobre los pedidos, incluyendo detalles del pedido, pago y envío."
+    columns:
+      - name: SK_order_id
+        data_type: varchar
+        description: "Identificador único para cada pedido."
+        tests:
+          - unique
+        
+      - name: SK_customer_id
+        data_type: varchar
+        description: "Identificador único para el cliente que realizó el pedido."
+        tests:
+          - relationships:
+              to: ref('dim_customer') 
+              field: SK_customer_id
+
+      - name: SK_payment_id
+        data_type: varchar
+        description: "Identificador único para el pago asociado al pedido."
+        tests:
+          - unique
+          - relationships:
+              to: ref('dim_payment') 
+              field: SK_payment_id
+
+      - name: SK_shipment_id
+        data_type: varchar
+        description: "Identificador único para el envío asociado al pedido."
+        tests:
+          - unique
+          - relationships:
+              to: ref('dim_shipment') 
+              field: SK_shipment_id
+
+      - name: order_date
+        data_type: date
+        description: "La fecha en que se realizó el pedido."
+        
+      - name: total_price_corrected
+        data_type: float
+        description: "El precio total corregido del pedido, incluyendo cualquier ajuste."
+        
+
+  - name: fct_order_items
+    description: "Tabla de hechos que contiene los artículos del pedido, incluyendo detalles de los productos pedidos, cantidades y precios."
+    columns:
+      - name: SK_order_item_id
+        data_type: varchar
+        description: "Identificador único para cada artículo del pedido."
+        tests:
+          - unique
+
+      - name: SK_order_id
+        data_type: varchar
+        description: "Identificador único para el pedido al que pertenece este artículo."
+
+      - name: SK_product_id
+        data_type: varchar
+        description: "Identificador único para el producto en el artículo del pedido."
+        tests:
+          - relationships:
+              to: ref('dim_product') 
+              field: SK_product_id
+
+
+      - name: price_at_purchase_corrected
+        data_type: float
+        description: "El precio corregido del producto al momento de la compra."
+        
+      - name: quantity
+        data_type: number
+        description: "La cantidad del producto en el artículo del pedido."
+        
+      - name: order_date
+        data_type: date
+        description: "La fecha en que se realizó el artículo del pedido."
+        
+
+  - name: dim_payment
+    description: "Tabla de dimensión que contiene detalles del pago, incluyendo el método de pago y el estado."
+    columns:
+      - name: SK_payment_id
+        data_type: varchar
+        description: "Identificador único para el pago."
+        tests:
+          - unique
+
+      - name: amount_corrected
+        data_type: float
+        description: "El monto corregido pagado en la transacción."
+        
+      - name: payment_method_normalized
+        data_type: varchar
+        description: "El método de pago normalizado utilizado en la transacción."
+        
+      - name: transaction_status
+        data_type: varchar
+        description: "El estado de la transacción de pago (por ejemplo, completada, pendiente)."
+        
+
+  - name: dim_shipment
+    description: "Tabla de dimensión que contiene detalles del envío, incluyendo el transportista y el estado del envío."
+    columns:
+      - name: SK_shipment_id
+        data_type: varchar
+        description: "Identificador único para el envío."
+        tests:
+          - unique
+
+      - name: shipment_date
+        data_type: date
+        description: "La fecha en que se procesó el envío."
+        
+      - name: tracking_number
+        data_type: varchar
+        description: "El número de seguimiento del envío."
+        
+      - name: carrier
+        data_type: varchar
+        description: "El transportista que maneja el envío."
+        
+      - name: shipment_status
+        data_type: varchar
+        description: "El estado actual del envío (por ejemplo, enviado, en tránsito)."
+        
+      - name: delivery_date
+        data_type: date
+        description: "La fecha en que el envío fue entregado."
+        
+
+  - name: dim_customer
+    description: "Tabla de dimensión que contiene detalles del cliente."
+    columns:
+      - name: SK_customer_id
+        data_type: varchar
+        description: "Identificador único para el cliente."
+        tests:
+          - unique
+
+      - name: SK_location_customers_id
+        data_type: varchar
+        description: "Identificador único para la ubicación del cliente."
+
+      - name: first_name
+        data_type: varchar
+        description: "El primer nombre del cliente."
+        
+      - name: last_name
+        data_type: varchar
+        description: "El apellido del cliente."
+        
+      - name: street
+        data_type: varchar
+        description: "La dirección del cliente."
+        
+      - name: phone_number_norm
+        data_type: varchar
+        description: "El número de teléfono normalizado del cliente."
+        
+      - name: email
+        data_type: varchar
+        description: "La dirección de correo electrónico del cliente."
+        
+      - name: email_validation
+        data_type: boolean
+        description: "Indicador de si el correo electrónico del cliente ha sido validado."
+        
+
+  - name: dim_location
+    description: "Tabla de dimensión que contiene la información de ubicación de los clientes."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - city
+            - state
+    columns:
+      - name: SK_location_customers_id
+        data_type: varchar
+        description: "Identificador único para la ubicación del cliente."
+        tests:
+          - unique
+
+      - name: city
+        data_type: varchar
+        description: "La ciudad donde se encuentra el cliente."
+        
+      - name: state
+        data_type: varchar
+        description: "El estado donde se encuentra el cliente."
+        
+
+  - name: dim_review
+    description: "Tabla de dimensión que contiene las reseñas de productos proporcionadas por los clientes."
+    columns:
+      - name: SK_review_id
+        data_type: varchar
+        description: "Identificador único para la reseña del producto."
+        tests:
+          - unique
+
+      - name: SK_product_id
+        data_type: varchar
+        description: "Identificador único para el producto reseñado."
+
+      - name: review_date
+        data_type: date
+        description: "La fecha en que se envió la reseña."
+        
+      - name: corrected_rating
+        data_type: number
+        description: "La calificación corregida proporcionada por el cliente para el producto."
+        
+
+  - name: dim_date
+    description: "Tabla de dimensión que contiene información relacionada con la fecha."
+    columns:
+      - name: dte_date
+        data_type: date
+        description: "El valor de la fecha."
+        tests:
+          - unique
+
+      - name: num_date_sk
+        data_type: number
+        description: "La clave sustituta para la fecha."
+        
+      - name: num_year
+        data_type: number
+        description: "El año de la fecha."
+        
+      - name: num_month
+        data_type: number
+        description: "El mes de la fecha."
+        
+      - name: num_day
+        data_type: number
+        description: "El día del mes."
+        
+      - name: des_day
+        data_type: varchar
+        description: "El nombre completo del día de la semana."
+        
+      - name: des_day_short
+        data_type: varchar
+        description: "El nombre abreviado del día de la semana."
+        
+      - name: des_month
+        data_type: varchar
+        description: "El nombre completo del mes."
+        
+      - name: des_month_short
+        data_type: varchar
+        description: "El nombre abreviado del mes."
+        
+      - name: num_day_of_week
+        data_type: number
+        description: "El día de la semana como número (1 = Lunes, 7 = Domingo)."
+        
+      - name: num_week_year
+        data_type: number
+        description: "El número de semana del año."
+        
+      - name: num_week_year_seat
+        data_type: number
+        description: "El número de semana según el estándar SEAT."
+        
+      - name: dte_last_day_week
+        data_type: date
+        description: "El último día de la semana para la fecha dada."
+        
+      - name: num_quarter
+        data_type: number
+        description: "El trimestre del año para la fecha dada."
+        
+      - name: des_quarter
+        data_type: varchar
+        description: "La descripción del trimestre (por ejemplo, 'Q1', 'Q2')."
+        
+      - name: num_semester
+        data_type: number
+        description: "El semestre (1 = Primer semestre, 2 = Segundo semestre)."
+        
+      - name: des_year_quarter
+        data_type: varchar
+        description: "El año y el trimestre en el formato 'YYYY/QX'."
+        
+      - name: des_year_month
+        data_type: varchar
+        description: "El año y el mes en el formato 'YYYY/MM'."
+        
+      - name: des_year_month_short
+        data_type: varchar
+        description: "El año y mes abreviado en el formato 'YY/MM'."
+        
+      - name: dte_last_day_month
+        data_type: date
+        description: "El último día del mes para la fecha dada."
+        
+      - name: des_day_spa
+        data_type: varchar
+        description: "El nombre del día en español."
+        
+      - name: des_day_short_spa
+        data_type: varchar
+        description: "El nombre abreviado del día en español."
+        
+      - name: des_month_spa
+        data_type: varchar
+        description: "El nombre del mes en español."
+        
+      - name: des_month_short_spa
+        data_type: varchar
+        description: "El nombre abreviado del mes en español."
+        
+
+  - name: dim_product
+    description: "Tabla de dimensión que contiene los detalles de los productos, incluyendo el precio y la información del proveedor."
+    columns:
+      - name: SK_product_id
+        data_type: varchar
+        description: "Identificador único para el producto."
+        tests:
+          - unique
+
+      - name: SK_supplier_id
+        data_type: varchar
+        description: "Identificador único para el proveedor del producto."
+        tests:
+          - relationships:
+              to: ref('dim_supplier') 
+              field: SK_supplier_id
+
+      - name: SK_category_id
+        data_type: varchar
+        description: "Identificador único para la categoría a la que pertenece el producto."
+        tests:
+          - relationships:
+              to: ref('dim_category') 
+              field: SK_category_id
+
+      - name: price_corrected
+        data_type: float
+        description: "El precio corregido del producto."
+        
+
+  - name: dim_category
+    description: "Tabla de dimensión que contiene información sobre las categorías de productos."
+    columns:
+      - name: SK_category_id
+        data_type: varchar
+        description: "Identificador único para la categoría."
+        tests:
+          - unique
+
+      - name: category
+        data_type: varchar
+        description: "El nombre de la categoría."
+        
+
+  - name: dim_supplier
+    description: "Tabla de dimensión que contiene detalles de los proveedores, incluyendo información de contacto y ubicación."
+    columns:
+      - name: SK_supplier_id
+        data_type: varchar
+        description: "Identificador único para el proveedor."
+        tests:
+          - unique
+
+      - name: SK_location_suppliers_id
+        data_type: varchar
+        description: "Identificador único para la ubicación del proveedor."
+
+      - name: first_name
+        data_type: varchar
+        description: "El primer nombre del contacto del proveedor."
+        
+      - name: last_name
+        data_type: varchar
+        description: "El apellido del contacto del proveedor."
+        
+      - name: street
+        data_type: varchar
+        description: "La dirección del proveedor."
+        
+      - name: phone_number_norm
+        data_type: varchar
+        description: "El número de teléfono normalizado del proveedor."
+        
+      - name: email
+        data_type: varchar
+        description: "La dirección de correo electrónico del proveedor."
+        
+      - name: email_validation
+        data_type: boolean
+        description: "Indicador de si el correo electrónico del proveedor ha sido validado."
