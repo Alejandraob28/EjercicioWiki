@@ -43,7 +43,7 @@ models:
         tests:
               - unique
   
-  - name: stg_catalog_location_suppliers
+  - name: stg_catalog_location_suppliers_id
     description: "Localizaciones."
     columns:
       - name: SK_location_suppliers_id
@@ -107,7 +107,7 @@ models:
         description: "Identificador único del proveedor."
         tests:
           - unique
-      - name: SK_location_id
+      - name: SK_location_suppliers_id
         data_type: number
         description: "Identificador único de la localización."
       - name: first_name

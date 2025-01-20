@@ -31,10 +31,10 @@ models:
         tests:
               - unique
   
-  - name: stg_catalog_location_customers
+  - name: stg_catalog_location_customers_id
     description: "Localizaciones."
     columns:
-      - name: SK_location_customer_id
+      - name: SK_location_customers_id
         data_type: varchar
         description: "Identificador único de la localización (hash del address)."
         tests:
@@ -65,7 +65,7 @@ models:
               to: ref('stg_clients_reviews','stg_sales_orders') 
               field: SK_customer_id
           - unique
-      - name: SK_location_id
+      - name: SK_location_customers_id
         data_type: number
         description: "Identificador único de la localización."
       - name: first_name
