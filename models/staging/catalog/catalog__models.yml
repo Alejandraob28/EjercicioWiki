@@ -48,7 +48,7 @@ models:
     columns:
       - name: SK_location_suppliers_id
         data_type: varchar
-        description: "Identificador único de la localización (hash del address)."
+        description: "Identificador único de la localización (hash del address de los suppliers)."
         tests:
               - unique
       - name: address

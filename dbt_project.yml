@@ -55,4 +55,4 @@ models:
         +materialized: table
 
 tests:
-      +severity: warn  # all tests
+      +severity: warn  

@@ -16,9 +16,6 @@ WITH RankedSuppliers AS (
         
         -- Extracción del id del proveedor
         css.SK_supplier_id,
-
-        -- Extracción del id de localización
-        cls.SK_location_suppliers_id,
         
         -- Extracción del primer nombre
         TRIM(SUBSTRING(cs.contact_name, 1, POSITION(' ' IN cs.contact_name) - 1)) AS first_name,
@@ -28,6 +25,9 @@ WITH RankedSuppliers AS (
         
         -- Uso de la macro para separar la dirección en 3 partes (calle, ciudad, estado)
         {{ split_address('cs.address') }},
+
+        -- Extracción del id de localización
+        cls.SK_location_suppliers_id,
         
         -- Uso de la macro para normalizar el número de teléfono
         {{ normalize_phone_number('cs.phone_number') }} AS phone_number_norm,
