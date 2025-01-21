@@ -1,0 +1,99 @@
+version: 2
+
+models:
+  - name: best_rating_products
+    description: "Tabla que contiene los productos con la mejor valoración media."
+    columns:
+      - name: SK_product_id
+        data_type: varchar
+        description: "Identificador único del producto."
+        tests:
+          - unique
+      
+      - name: avg_rating
+        data_type: number
+        description: "Valoración media del producto."
+        tests:
+           - dbt_expectations.expect_column_max_to_be_between:
+              min_value: 0
+              max_value: 5
+
+
+  - name: client_analysis
+    description: "Análisis de clientes basado en su gasto total y su estatus de retención."
+    columns:
+      - name: SK_customer_id
+        data_type: varchar
+        description: "Identificador único del cliente."
+        tests:
+          - unique
+
+      - name: customer_name
+        data_type: varchar
+        description: "Nombre completo del cliente."
+
+      - name: total_spent
+        data_type: float
+        description: "El total gastado por el cliente en la tienda."
+
+      - name: retention_status
+        data_type: varchar
+        description: "Estado de retención del cliente (Activo, Perdido, Nuevo)."
+        tests:
+          - accepted_values:
+              values:
+                - "Active"
+                - "Lost"
+                - "New"
+
+  - name: first_best_suppliers
+    description: "Proveedores con más productos vendidos y mejor valoración media de sus productos."
+    columns:
+      - name: SK_supplier_id
+        data_type: varchar
+        description: "Identificador único del proveedor."
+        tests:
+          - unique
+
+      - name: supplier_name
+        data_type: varchar
+        description: "Nombre del proveedor."
+
+      - name: total_products_sold
+        data_type: number
+        description: "Total de productos vendidos por el proveedor."
+
+      - name: avg_supplier_rating
+        data_type: number
+        description: "Valoración media de los productos del proveedor."
+        tests:
+           - dbt_expectations.expect_column_max_to_be_between:
+              min_value: 0
+              max_value: 5
+
+
+  - name: state_orders
+    description: "Análisis del estado de los pedidos, incluyendo el total de pedidos por estado y su porcentaje."
+    columns:
+      - name: transaction_status
+        data_type: varchar
+        description: "Estado de la transacción del pedido (Completado, Pendiente, Cancelado)."
+        tests:
+          - accepted_values:
+              values:
+                - "Completed"
+                - "Pending"
+                - "Failed"
+
+      - name: total_orders
+        data_type: number
+        description: "Total de pedidos en cada estado."
+
+      - name: percentage
+        data_type: number
+        description: "Porcentaje de pedidos en cada estado con respecto al total."
+        tests:
+           - dbt_expectations.expect_column_max_to_be_between:
+              min_value: 0
+              max_value: 100
+
