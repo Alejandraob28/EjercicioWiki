@@ -50,9 +50,16 @@ models:
 
     marts:
       +database: "{{env_var('DBT_DB')}}_GOLD_ICAROSPATH_DB"
-      +schema: "{{env_var('DBT_SCHEMA_NAME','default_schema')}}"
       core:
         +materialized: table
+        +schema: core
+      finance:
+        +materialized: table
+        +schema: finance
+      BI:
+        +materialized: table
+        +schema:  BI
+      
 
 tests:
       +severity: warn  
