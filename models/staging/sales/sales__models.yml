@@ -189,7 +189,6 @@ models:
       - name: tracking_number
         data_type: varchar
         description: "Número de seguimiento del envío."
-
       - name: carrier
         data_type: varchar
         description: "Nombre de la empresa de mensajería o transportista encargado del envío."
