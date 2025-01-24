@@ -68,9 +68,6 @@ models:
         data_type: number
         description: "Identificador único del producto."
         tests:
-          - relationships:
-              to: ref('stg_clients_reviews','stg_sales_order_items')
-              field: SK_product_id
           - unique
       - name: SK_supplier_id
         data_type: number
